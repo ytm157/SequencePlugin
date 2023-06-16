@@ -71,6 +71,7 @@ public class JavaSequenceNavigable implements SequenceNavigable {
                 })
                 .finishOnUiThread(ModalityState.defaultModalityState(), p -> {
                     if (p != null)
+                        // p.first是virtualFile，p.second是offset
                         openInEditor(p.first, p.second, project);
                 })
                 .inSmartMode(project)

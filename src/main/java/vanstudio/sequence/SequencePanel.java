@@ -19,7 +19,8 @@ import icons.SequencePluginIcons;
 import vanstudio.sequence.config.ConfigListener;
 import vanstudio.sequence.config.SequenceParamsState;
 import vanstudio.sequence.formatter.MermaidFormatter;
-import vanstudio.sequence.formatter.PlantUMLFormatter;
+//import vanstudio.sequence.formatter.PlantUMLFormatter;
+import vanstudio.sequence.formatter.PlantUMLFormatter2;
 import vanstudio.sequence.formatter.SdtFormatter;
 import vanstudio.sequence.generator.filters.ImplementClassFilter;
 import vanstudio.sequence.generator.filters.SingleClassFilter;
@@ -146,7 +147,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
         ReadAction
                 .nonBlocking(() -> {
                     final CallStack callStack = generator.generate(psiElement, null);
-                    if ( callStack == null || callStack.getMethod() == null) {
+                    if (callStack == null || callStack.getMethod() == null) {
                         progressIndicator.processFinish();
                         return "Generate...";
                     }
@@ -185,7 +186,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
         if ("mmd".equalsIgnoreCase(ext))
             return new MermaidFormatter().format(callStack);
 
-        return new PlantUMLFormatter().format(callStack);
+        return new PlantUMLFormatter2().format(callStack);
     }
 
     private void showBirdView() {
@@ -422,27 +423,30 @@ public class SequencePanel extends JPanel implements ConfigListener {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent event) {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setSelectedFile(new File(getTitleName().replaceAll("\\.", "_")));
-            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PlantUML (.puml) File", "puml"));
-            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Mermaid (.mmd) File", "mmd"));
-            fileChooser.setAcceptAllFileFilterUsed(false);
-            try {
-                if (fileChooser.showSaveDialog(SequencePanel.this) == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    FileFilter fileFilter = fileChooser.getFileFilter();
-                    String extension = ((FileNameExtensionFilter) fileFilter).getExtensions()[0];
 
-                    String uml = generatePumlMmd(extension);
-
-                    File fileToSave = new File(selectedFile.getParentFile(), selectedFile.getName() + '.' + extension);
-                    FileUtil.writeToFile(fileToSave, uml);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(SequencePanel.this, e.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
-            }
+            String uml = generatePumlMmd(".plantuml");
+            System.out.println(uml);
+//            JFileChooser fileChooser = new JFileChooser();
+//            fileChooser.setSelectedFile(new File(getTitleName().replaceAll("\\.", "_")));
+//            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+//            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PlantUML (.puml) File", "puml"));
+//            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Mermaid (.mmd) File", "mmd"));
+//            fileChooser.setAcceptAllFileFilterUsed(false);
+//            try {
+//                if (fileChooser.showSaveDialog(SequencePanel.this) == JFileChooser.APPROVE_OPTION) {
+//                    File selectedFile = fileChooser.getSelectedFile();
+//                    FileFilter fileFilter = fileChooser.getFileFilter();
+//                    String extension = ((FileNameExtensionFilter) fileFilter).getExtensions()[0];
+//
+//                    String uml = generatePumlMmd(extension);
+//
+//                    File fileToSave = new File(selectedFile.getParentFile(), selectedFile.getName() + '.' + extension);
+//                    FileUtil.writeToFile(fileToSave, uml);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                JOptionPane.showMessageDialog(SequencePanel.this, e.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
+//            }
         }
 
         @Override
@@ -554,7 +558,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
                 actionGroup.add(new RemoveClassAction(displayObject.getObjectInfo()));
                 if ((displayObject.getObjectInfo().hasAttribute(Info.INTERFACE_ATTRIBUTE) || displayObject.getObjectInfo().hasAttribute(Info.ABSTRACT_ATTRIBUTE))
                         && !displayObject.getObjectInfo().hasAttribute(Info.EXTERNAL_ATTRIBUTE)
-                        /*&& !_sequenceParams.isSmartInterface()*/) {
+                    /*&& !_sequenceParams.isSmartInterface()*/) {
                     String className = displayObject.getObjectInfo().getFullName();
                     List<String> impls = navigable.findImplementations(className);
                     actionGroup.addSeparator();
@@ -565,7 +569,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
                 actionGroup.add(new RemoveMethodAction(displayMethod.getMethodInfo()));
                 if ((displayMethod.getObjectInfo().hasAttribute(Info.INTERFACE_ATTRIBUTE) || displayMethod.getObjectInfo().hasAttribute(Info.ABSTRACT_ATTRIBUTE))
                         && !displayMethod.getObjectInfo().hasAttribute(Info.EXTERNAL_ATTRIBUTE)
-                        /*&& !_sequenceParams.isSmartInterface()*/) {
+                    /*&& !_sequenceParams.isSmartInterface()*/) {
 
                     String className = displayMethod.getObjectInfo().getFullName();
                     String methodName = displayMethod.getMethodInfo().getRealName();

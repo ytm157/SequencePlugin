@@ -1,8 +1,10 @@
 # SequenceDiagram Changelog
 
-## Unreleased
-### Added
-- RegexFilter: e.g. `.*Builder` to filter `my.package.MyBuilder`, `java.lang.StringBuilder`...
+[//]: # (## Unreleased)
+
+[//]: # (### Added)
+
+[//]: # (- RegexFilter: e.g. `.*Builder` to filter `my.package.MyBuilder`, `java.lang.StringBuilder`...)
 
 ## 3.0.5 - 2023-05-24
 
