@@ -1,30 +1,51 @@
 package vanstudio.sequence.formatter;
 
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import vanstudio.sequence.config.SequenceSettingsState;
+import vanstudio.sequence.diagram.*;
 import vanstudio.sequence.openapi.Constants;
 import vanstudio.sequence.openapi.model.CallStack;
 import vanstudio.sequence.openapi.model.MethodDescription;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Generate <a href="https://plantuml.com/sequence-diagram">PlantUml sequence diagram</a> format.
  */
 public class PlantUMLFormatter2 implements IFormatter {
+    private static final Logger LOGGER = Logger.getInstance(PlantUMLFormatter2.class);
 
     private SequenceSettingsState sequenceSettingsState;
     private java.util.List<String> methodColors = new ArrayList<>();
+    private java.util.List<ObjectInfo> objectInfos = new ArrayList<>();
+    private Project project;
+    private PsiElement psiElement;
 
-    public PlantUMLFormatter2() {
+    public PlantUMLFormatter2(Project project, PsiElement psiMethod, Model model) {
         this.sequenceSettingsState = SequenceSettingsState.getInstance();
+        this.project = project;
+        this.psiElement = psiMethod;
         methodColors.add(toHexColorString(sequenceSettingsState.METHOD_BAR_COLOR));
         methodColors.add("#00FFFF");
         methodColors.add("#8FBC8F");
         methodColors.add("#FFFAF0");
         methodColors.add("#DAA520");
+
+        Parser p = new Parser();
+        try {
+            p.parse(model.getText());
+        } catch (IOException ioe) {
+            LOGGER.error("IOException", ioe);
+            return;
+        }
+        objectInfos = p.getObjects();
     }
 
     @Override
@@ -35,7 +56,13 @@ public class PlantUMLFormatter2 implements IFormatter {
                 .append("autoactivate on").append("\n")
                 .append("autonumber").append("\n");
 
-        buffer.append("participant Actor").append("\n").append("\n");
+        // 将class放在一起
+        buffer.append("box Class\n");
+        for (ObjectInfo obj : objectInfos) {
+            buffer.append("  participant ").append(obj.getName()).append("\n");
+        }
+        buffer.append("end box\n\n");
+
         String classA = callStack.getMethod().getClassDescription().getClassShortName();
         String method = getMethodName(callStack.getMethod());
         if (Constants.CONSTRUCTOR_METHOD_NAME.equals(callStack.getMethod().getMethodName())) {
@@ -82,7 +109,11 @@ public class PlantUMLFormatter2 implements IFormatter {
                 Integer count = selfCallCount.get(classA);
                 count++;
                 selfCallCount.put(classA, count);
-                methodColor = methodColors.get(count % methodColors.size());
+                // 将count映射到[x,y]
+                int x = 1;
+                int y = methodColors.size() - 1;
+                int mappedValue = (count - x) % y + 1;
+                methodColor = methodColors.get(mappedValue);
             }
             buffer.append(classA).append(" -> ").append(classB).append(methodColor)
                     .append(" : ").append(method).append('\n');

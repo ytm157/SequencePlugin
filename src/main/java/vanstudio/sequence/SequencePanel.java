@@ -55,7 +55,8 @@ public class SequencePanel extends JPanel implements ConfigListener {
     private String _titleName;
     private final JScrollPane _jScrollPane;
     private final HashMap<String, Integer> navIndexMap = new HashMap<>();
-    private GenerateFinishedListener finished = name -> {};
+    private GenerateFinishedListener finished = name -> {
+    };
 
     public SequencePanel(Project project, PsiElement psiMethod) {
         super(new BorderLayout());
@@ -186,7 +187,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
         if ("mmd".equalsIgnoreCase(ext))
             return new MermaidFormatter().format(callStack);
 
-        return new PlantUMLFormatter2().format(callStack);
+        return new PlantUMLFormatter2(project, psiElement, _model).format(callStack);
     }
 
     private void showBirdView() {
