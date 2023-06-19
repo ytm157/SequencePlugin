@@ -424,30 +424,32 @@ public class SequencePanel extends JPanel implements ConfigListener {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent event) {
-
-            String uml = generatePumlMmd(".plantuml");
-            System.out.println(uml);
-//            JFileChooser fileChooser = new JFileChooser();
-//            fileChooser.setSelectedFile(new File(getTitleName().replaceAll("\\.", "_")));
-//            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-//            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PlantUML (.puml) File", "puml"));
-//            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Mermaid (.mmd) File", "mmd"));
-//            fileChooser.setAcceptAllFileFilterUsed(false);
-//            try {
-//                if (fileChooser.showSaveDialog(SequencePanel.this) == JFileChooser.APPROVE_OPTION) {
-//                    File selectedFile = fileChooser.getSelectedFile();
-//                    FileFilter fileFilter = fileChooser.getFileFilter();
-//                    String extension = ((FileNameExtensionFilter) fileFilter).getExtensions()[0];
-//
-//                    String uml = generatePumlMmd(extension);
-//
-//                    File fileToSave = new File(selectedFile.getParentFile(), selectedFile.getName() + '.' + extension);
-//                    FileUtil.writeToFile(fileToSave, uml);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(SequencePanel.this, e.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
-//            }
+//            String uml = generatePumlMmd(".plantuml");
+//            System.out.println(uml);
+            Project project = event.getData(CommonDataKeys.PROJECT);
+            JFileChooser fileChooser = new JFileChooser();
+            if (project != null && project.getBasePath() != null) {
+                // 设置默认路径为当前项目路径
+                fileChooser.setCurrentDirectory(new java.io.File(project.getBasePath()));
+            }
+            fileChooser.setSelectedFile(new File(getTitleName().replaceAll("\\.", "_")));
+            fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PlantUML (.plantuml) File", "plantuml"));
+            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Mermaid (.mmd) File", "mmd"));
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            try {
+                if (fileChooser.showSaveDialog(SequencePanel.this) == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    FileFilter fileFilter = fileChooser.getFileFilter();
+                    String extension = ((FileNameExtensionFilter) fileFilter).getExtensions()[0];
+                    String uml = generatePumlMmd(extension);
+                    File fileToSave = new File(selectedFile.getParentFile(), selectedFile.getName() + '.' + extension);
+                    FileUtil.writeToFile(fileToSave, uml);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(SequencePanel.this, e.getMessage(), "Exception", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         @Override

@@ -108,6 +108,7 @@ public class SequenceGenerator extends JavaRecursiveElementVisitor implements IG
 
     /**
      * Generate Java method
+     *
      * @param psiMethod Java method
      * @return CallStack
      */
@@ -282,8 +283,13 @@ public class SequenceGenerator extends JavaRecursiveElementVisitor implements IG
     }
 
     private ClassDescription createClassDescription(PsiClass psiClass) {
-        return new ClassDescription(psiClass.getQualifiedName(),
+        // 只有PsiClass才能获取到物理path
+        // UastSequenceGenerator#generateMethod以及MyUastUtil中的createClassDescription传递的是抽象的UClass和UMethod，无法获取路径
+        String path = psiClass.getContainingFile().getVirtualFile().getPath();
+        ClassDescription classDescription = new ClassDescription(psiClass.getQualifiedName(),
                 createAttributes(psiClass.getModifierList(), MyPsiUtil.isExternal(psiClass)));
+        classDescription.setAbsPath(path);
+        return classDescription;
     }
 
     private List<String> createAttributes(PsiModifierList psiModifierList, boolean external) {
@@ -333,7 +339,7 @@ public class SequenceGenerator extends JavaRecursiveElementVisitor implements IG
      *      }
      * }
      * </pre>
-     *
+     * <p>
      * When user use Apple assignment, the <code>Apple</code> implement should be preferred.
      * <pre>
      *     Fruit fruit = new Apple()

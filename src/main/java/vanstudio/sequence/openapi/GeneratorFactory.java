@@ -13,6 +13,7 @@ public abstract class GeneratorFactory {
 
     @NotNull
     public static IGenerator createGenerator(Language language, SequenceParams params) {
+        // 在plugin.xml的extensions defaultExtensionNs="SequenceDiagram"配置中
         GeneratorFactory factory = EP_NAME.forLanguage(language);
         if (factory == null) {
             return new UnsupportedGenerator();

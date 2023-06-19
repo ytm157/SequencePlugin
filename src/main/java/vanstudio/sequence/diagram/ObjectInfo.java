@@ -14,26 +14,28 @@ public class ObjectInfo extends Info {
     private final String _fullName;
     private final int _seq;
     private final List<MethodInfo> _methods = new ArrayList<>();
+    private String absPath;
 
-    public ObjectInfo(String name, List<String> attributes, int seq) {
+    public ObjectInfo(String name, List<String> attributes, int seq, String absPath) {
         super(attributes);
         _name = name.substring(name.lastIndexOf('.') + 1);
         _fullName = name;
         _seq = seq;
+        this.absPath = absPath;
     }
 
     public void addMethod(MethodInfo mi) {
-        if(LOGGER.isDebugEnabled())
+        if (LOGGER.isDebugEnabled())
             LOGGER.debug("addMethod(" + mi + ")");
         int possible = -1;
-        for(int i = 0; i < _methods.size(); ++i) {
+        for (int i = 0; i < _methods.size(); ++i) {
             MethodInfo otherMethod = _methods.get(i);
-            if(otherMethod.getStartSeq() > mi.getStartSeq()) {
+            if (otherMethod.getStartSeq() > mi.getStartSeq()) {
                 possible = i;
                 break;
             }
         }
-        if(possible == -1)
+        if (possible == -1)
             _methods.add(mi);
         else
             _methods.add(possible, mi);
@@ -69,10 +71,18 @@ public class ObjectInfo extends Info {
     }
 
     public boolean equals(Object o) {
-        return _name.equals(((ObjectInfo)o)._name);
+        return _name.equals(((ObjectInfo) o)._name);
     }
 
     public boolean isActor() {
         return _name.equals(ACTOR_NAME);
+    }
+
+    public String getAbsPath() {
+        return absPath;
+    }
+
+    public void setAbsPath(String absPath) {
+        this.absPath = absPath;
     }
 }

@@ -7,6 +7,7 @@ import java.util.*;
 public class ClassDescription {
     private final String _className;
     private final List<String> _attributes;
+    private String absPath;
 
     public ClassDescription(String className, List<String> attributes) {
         _className = className != null ? className : Constants.ANONYMOUS_CLASS_NAME;
@@ -51,5 +52,13 @@ public class ClassDescription {
 
     public static ClassDescription getFileNameAsClass(String filename) {
         return new ClassDescription(filename, new ArrayList<>());
+    }
+
+    public String getAbsPath() {
+        return absPath;
+    }
+
+    public void setAbsPath(String absPath) {
+        this.absPath = absPath;
     }
 }

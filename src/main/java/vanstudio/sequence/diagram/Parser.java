@@ -92,12 +92,12 @@ public class Parser {
 
         ClassDescription c = m.getClassDescription();
         if (_objList.isEmpty()) {
-            ObjectInfo objectInfo = new ObjectInfo(ObjectInfo.ACTOR_NAME, new ArrayList<>(), _currentHorizontalSeq);
+            ObjectInfo objectInfo = new ObjectInfo(ObjectInfo.ACTOR_NAME, new ArrayList<>(), _currentHorizontalSeq, c.getAbsPath());
             ++_currentHorizontalSeq;
             _objList.add(objectInfo);
             _callInfoStack.push(new CallInfo(objectInfo, "aMethod", _currentVerticalSeq));
         }
-        ObjectInfo objectInfo = new ObjectInfo(c.getClassName(), c.getAttributes(), _currentHorizontalSeq);
+        ObjectInfo objectInfo = new ObjectInfo(c.getClassName(), c.getAttributes(), _currentHorizontalSeq, c.getAbsPath());
         int i = _objList.indexOf(objectInfo);
         if (i == -1) {
             ++_currentHorizontalSeq;
