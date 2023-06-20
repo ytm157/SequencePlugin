@@ -59,7 +59,8 @@ public class PlantUMLFormatter2 implements IFormatter {
         // 将class放在一起
         buffer.append("box Class\n");
         for (ObjectInfo obj : objectInfos) {
-            buffer.append("  participant ").append(obj.getName()).append("\n");
+            // class interface 以及自定义的class color，分别使用不同的颜色
+            buffer.append("  participant ").append(obj.getName()).append(determineBackgroundPaintForObject(obj)).append("\n");
             buffer.append(String.format("  url of %s is [[%s]]", obj.getName(), obj.getAbsPath())).append("\n");
         }
         buffer.append("end box\n\n");
@@ -149,5 +150,18 @@ public class PlantUMLFormatter2 implements IFormatter {
             return method.getFullName2();
         }
 
+    }
+
+    /**
+     * @see vanstudio.sequence.diagram.DisplayObject#determineBackgroundPaintForObject
+     * @param objectInfo
+     * @return
+     */
+    private String determineBackgroundPaintForObject(ObjectInfo objectInfo) {
+        return objectInfo.hasAttribute(Info.EXTERNAL_ATTRIBUTE)
+                ? toHexColorString(sequenceSettingsState.EXTERNAL_CLASS_COLOR)
+                : objectInfo.hasAttribute(Info.INTERFACE_ATTRIBUTE)
+                ? toHexColorString(sequenceSettingsState.INTERFACE_COLOR)
+                : toHexColorString(sequenceSettingsState.CLASS_COLOR);
     }
 }
