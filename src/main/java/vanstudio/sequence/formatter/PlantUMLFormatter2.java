@@ -14,7 +14,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,25 +60,24 @@ public class PlantUMLFormatter2 implements IFormatter {
         buffer.append("box Class\n");
         for (ObjectInfo obj : objectInfos) {
             buffer.append("  participant ").append(obj.getName()).append("\n");
-            buffer.append(String.format("  url of %s is [[%s]]",obj.getName(), obj.getAbsPath())).append("\n");
+            buffer.append(String.format("  url of %s is [[%s]]", obj.getName(), obj.getAbsPath())).append("\n");
         }
         buffer.append("end box\n\n");
 
-
-        ClassDescription classDescription = callStack.getMethod().getClassDescription();
+        MethodDescription methodDescription = callStack.getMethod();
+        ClassDescription classDescription = methodDescription.getClassDescription();
         String classA = classDescription.getClassShortName();
-        String method = getMethodName(callStack.getMethod());
-        if (Constants.CONSTRUCTOR_METHOD_NAME.equals(callStack.getMethod().getMethodName())) {
+        String method = getMethodName(methodDescription);
+        if (Constants.CONSTRUCTOR_METHOD_NAME.equals(methodDescription.getMethodName())) {
             buffer.append("create ").append(classA).append('\n');
         }
         buffer.append("Actor").append(" -> ").append(classA).append(methodColors.get(0))
                 .append(" : ")
-                // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple]]
-                .append(String.format("[[%s#%s %s]]", classDescription.getAbsPath(), method, method))
+                // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
+                .append(String.format("[[%s#%s %s]]", classDescription.getAbsPath(), methodDescription.getMethodName(), method))
                 .append('\n');
-//        buffer.append("activate ").append(classA).append('\n');
         generate(buffer, callStack);
-        buffer.append("return").append('\n');
+        buffer.append(classA).append(" --> Actor : return\n");
         buffer.append("@enduml");
         return buffer.toString();
     }
@@ -100,18 +98,20 @@ public class PlantUMLFormatter2 implements IFormatter {
     Map<String, Integer> selfCallCount = new HashMap<>();
 
     private void generate(StringBuffer buffer, CallStack parent) {
-        ClassDescription classDescriptionA = parent.getMethod().getClassDescription();
+        MethodDescription methodDescriptionA = parent.getMethod();
+        ClassDescription classDescriptionA = methodDescriptionA.getClassDescription();
         String classA = classDescriptionA.getClassShortName();
         // 是从哪个方法调用的
-        String methodA = parent.getMethod().getMethodName();
+        String methodA = methodDescriptionA.getMethodName();
         if (!selfCallCount.containsKey(classA)) {
             selfCallCount.put(classA, 0);
         }
         for (CallStack callStack : parent.getCalls()) {
-            ClassDescription classDescriptionB = callStack.getMethod().getClassDescription();
+            MethodDescription methodDescriptionB = callStack.getMethod();
+            ClassDescription classDescriptionB = methodDescriptionB.getClassDescription();
             String classB = classDescriptionB.getClassShortName();
-            String method = getMethodName(callStack.getMethod());
-            if (Constants.CONSTRUCTOR_METHOD_NAME.equals(callStack.getMethod().getMethodName())) {
+            String method = getMethodName(methodDescriptionB);
+            if (Constants.CONSTRUCTOR_METHOD_NAME.equals(methodDescriptionB.getMethodName())) {
                 buffer.append("create ").append(classB).append('\n');
             }
             String methodColor = methodColors.get(0);
@@ -127,16 +127,14 @@ public class PlantUMLFormatter2 implements IFormatter {
             }
             buffer.append(classA).append(" -> ").append(classB).append(methodColor)
                     .append(" : ")
-//                    .append(method)
-                    // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple]]
-                    .append(String.format("[[%s#%s %s]]", classDescriptionB.getAbsPath(), method, method))
+                    // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
+                    .append(String.format("[[%s#%s %s]]", classDescriptionB.getAbsPath(), methodDescriptionB.getMethodName(), method))
                     .append('\n');
-//            buffer.append("activate ").append(classB).append('\n');
             generate(buffer, callStack);
             buffer.append(classB).append(" --> ").append(classA)
                     .append(" : ")
-                    // 形如 [[D:/xx/LoginController.java#loginSimple return loginSimple]]
-                    .append(String.format("return [[%s#%s %s]]", classDescriptionA.getAbsPath(), methodA, methodA))
+                    // 形如 void to [[D:/xx/LoginController.java#loginSimple return loginSimple]]
+                    .append(String.format("%s to [[%s#%s %s]]", methodDescriptionB.getReturnTypeShort(), classDescriptionA.getAbsPath(), methodDescriptionA.getMethodName(), methodA))
                     .append('\n');
         }
 
@@ -148,7 +146,7 @@ public class PlantUMLFormatter2 implements IFormatter {
         if (SequenceSettingsState.getInstance().SHOW_SIMPLIFY_CALL_NAME) {
             return method.getMethodName();
         } else {
-            return method.getFullName();
+            return method.getFullName2();
         }
 
     }

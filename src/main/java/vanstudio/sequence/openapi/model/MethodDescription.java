@@ -60,6 +60,9 @@ public class MethodDescription {
                 getMethodName() ;
     }
 
+    /**
+     * @return 形如 fun2(xx: String): void
+     */
     public String getFullName() {
         String name = Constants.CONSTRUCTOR_METHOD_NAME.equals(_methodName) ? "<<create>>" : _methodName;
         StringBuilder sb = new StringBuilder();
@@ -72,6 +75,23 @@ public class MethodDescription {
             sb.append(argName).append(": ").append(argType);
         }
         sb.append(")").append(": ").append(shortTypeName(_returnType));
+        return sb.toString();
+    }
+
+    /**
+     * @return 形如 fun2(String):void，只加变量类型，不加变量名
+     */
+    public String getFullName2() {
+        String name = Constants.CONSTRUCTOR_METHOD_NAME.equals(_methodName) ? "<<create>>" : _methodName;
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append("(");
+        for (int i = 0; i < _argNames.size(); i++) {
+            if (i > 0) sb.append(", ");
+            String argType = _argTypes.get(i);
+            argType = shortTypeName(argType);
+            sb.append(argType);
+        }
+        sb.append(")").append(":").append(shortTypeName(_returnType));
         return sb.toString();
     }
 
@@ -95,6 +115,10 @@ public class MethodDescription {
 
     public String getReturnType() {
         return _returnType;
+    }
+
+    public String getReturnTypeShort(){
+        return shortTypeName(_returnType);
     }
 
     @Override

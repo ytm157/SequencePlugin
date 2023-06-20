@@ -54,6 +54,12 @@ public class GenericType {
      *  @return the last part of the qualified name
      */
     private static String shortName(String name) {
+        // 可变参数，如 java.lang.String...，需要提取出String...的部分
+        if (name.endsWith("...")) {
+            String tempString = name.replace("...", "");
+            tempString = tempString.substring(tempString.lastIndexOf('.') + 1) + "...";
+            return tempString;
+        }
         return name.substring(name.lastIndexOf('.') + 1);
     }
 }
