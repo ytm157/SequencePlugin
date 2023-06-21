@@ -64,7 +64,7 @@ public class PlantUMLFormatter2 implements IFormatter {
         for (ObjectInfo obj : objectInfos) {
             // class interface 以及自定义的class color，分别使用不同的颜色
             buffer.append("  participant ").append(obj.getName()).append(determineBackgroundPaintForObject(obj)).append("\n");
-            if (!sequenceParamsState.plantumlLink) {
+            if (sequenceParamsState.plantumlLink) {
                 buffer.append(String.format("  url of %s is [[%s]]", obj.getName(), obj.getAbsPath())).append("\n");
             }
         }

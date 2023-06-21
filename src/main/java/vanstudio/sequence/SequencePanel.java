@@ -19,7 +19,6 @@ import icons.SequencePluginIcons;
 import vanstudio.sequence.config.ConfigListener;
 import vanstudio.sequence.config.SequenceParamsState;
 import vanstudio.sequence.formatter.MermaidFormatter;
-//import vanstudio.sequence.formatter.PlantUMLFormatter;
 import vanstudio.sequence.formatter.PlantUMLFormatter2;
 import vanstudio.sequence.formatter.SdtFormatter;
 import vanstudio.sequence.generator.filters.ImplementClassFilter;
@@ -31,6 +30,7 @@ import vanstudio.sequence.ui.MyButtonlessScrollBarUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.KtFunction;
 import vanstudio.sequence.diagram.*;
+import vanstudio.sequence.ui.CopyPlantumlUI;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -80,6 +80,7 @@ public class SequencePanel extends JPanel implements ConfigListener {
         actionGroup.addSeparator();
         actionGroup.add(new ExportAction());
         actionGroup.add(new ExportPumlAction());
+        actionGroup.add(new ShowPlantumlAction());
 
         ActionManager actionManager = ActionManager.getInstance();
         ActionToolbar actionToolbar = actionManager.createActionToolbar("SequencerToolbar", actionGroup, false);
@@ -458,6 +459,20 @@ public class SequencePanel extends JPanel implements ConfigListener {
         }
     }
 
+    private class ShowPlantumlAction extends AnAction{
+
+        public ShowPlantumlAction() {
+            super("Platuml Text", "Show a dialog which contains plantuml plain text", SequencePluginIcons.TEXT_ICON);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            String uml = generatePumlMmd("plantuml");
+            CopyPlantumlUI dialog=new CopyPlantumlUI();
+            dialog.setText(uml);
+            dialog.show();
+        }
+    }
 
     private class GotoSourceAction extends AnAction {
         private final ScreenObject _screenObject;

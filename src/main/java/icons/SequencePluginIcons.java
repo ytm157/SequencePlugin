@@ -19,6 +19,7 @@ public interface SequencePluginIcons {
     Icon OPEN_ICON = icon("/icons/folder.svg");
     Icon PUML_ICON = icon("/icons/puml.svg");
     Icon SETTING_ICON = icon("/icons/settings.svg");
+    Icon TEXT_ICON = icon("/icons/text.svg");
 
     static Icon icon(String path) {return IconLoader.getIcon(path, SequencePluginIcons.class);}
 }
