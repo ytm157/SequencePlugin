@@ -31,6 +31,7 @@ public class SequenceParamsEditor extends AnAction {
             state.noGetterSetters = dialogWrapper.isNoGetterSetters();
             state.noPrivateMethods = dialogWrapper.isNoPrivateMethods();
             state.noConstructors = dialogWrapper.isNoConstructors();
+            state.plantumlLink = dialogWrapper.isPlantumlLink();
 //            state.smartInterface = dialogWrapper.isSmartInterface();
 
             // Notify parameter change.

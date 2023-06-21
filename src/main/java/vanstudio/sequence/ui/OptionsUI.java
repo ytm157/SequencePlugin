@@ -17,6 +17,7 @@ public class OptionsUI {
         private final JCheckBox jCheckBoxNPM;
         private final JCheckBox jCheckBoxNC;
 //        private final JCheckBox jCheckBoxSI;
+        private final JCheckBox jCheckBoxPLLink;
 
         public DialogPanel() {
             super(new GridBagLayout());
@@ -75,6 +76,14 @@ public class OptionsUI {
             gc.insets = JBUI.emptyInsets();
             jCheckBoxNC = new JCheckBox("Skip constructors", state.noConstructors);
             add(jCheckBoxNC, gc);
+
+            gc.gridx = 0;
+            gc.gridy = 3;
+            gc.anchor = GridBagConstraints.WEST;
+            gc.gridwidth = 2;
+            gc.insets = JBUI.emptyInsets();
+            jCheckBoxPLLink = new JCheckBox("Plantuml with link", state.plantumlLink);
+            add(jCheckBoxPLLink, gc);
         }
     }
 
@@ -114,6 +123,10 @@ public class OptionsUI {
 
         public boolean isNoConstructors() {
             return dialogPanel.jCheckBoxNC.isSelected();
+        }
+
+        public boolean isPlantumlLink() {
+            return dialogPanel.jCheckBoxPLLink.isSelected();
         }
 
 //        public boolean isSmartInterface() {

@@ -3,6 +3,7 @@ package vanstudio.sequence.formatter;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
+import vanstudio.sequence.config.SequenceParamsState;
 import vanstudio.sequence.config.SequenceSettingsState;
 import vanstudio.sequence.diagram.*;
 import vanstudio.sequence.openapi.Constants;
@@ -23,6 +24,7 @@ public class PlantUMLFormatter2 implements IFormatter {
     private static final Logger LOGGER = Logger.getInstance(PlantUMLFormatter2.class);
 
     private SequenceSettingsState sequenceSettingsState;
+    private SequenceParamsState sequenceParamsState;
     private java.util.List<String> methodColors = new ArrayList<>();
     private java.util.List<ObjectInfo> objectInfos = new ArrayList<>();
     private Project project;
@@ -30,6 +32,7 @@ public class PlantUMLFormatter2 implements IFormatter {
 
     public PlantUMLFormatter2(Project project, PsiElement psiMethod, Model model) {
         this.sequenceSettingsState = SequenceSettingsState.getInstance();
+        this.sequenceParamsState = SequenceParamsState.getInstance();
         this.project = project;
         this.psiElement = psiMethod;
         methodColors.add(toHexColorString(sequenceSettingsState.METHOD_BAR_COLOR));
@@ -61,7 +64,9 @@ public class PlantUMLFormatter2 implements IFormatter {
         for (ObjectInfo obj : objectInfos) {
             // class interface 以及自定义的class color，分别使用不同的颜色
             buffer.append("  participant ").append(obj.getName()).append(determineBackgroundPaintForObject(obj)).append("\n");
-            buffer.append(String.format("  url of %s is [[%s]]", obj.getName(), obj.getAbsPath())).append("\n");
+            if (!sequenceParamsState.plantumlLink) {
+                buffer.append(String.format("  url of %s is [[%s]]", obj.getName(), obj.getAbsPath())).append("\n");
+            }
         }
         buffer.append("end box\n\n");
 
@@ -73,10 +78,14 @@ public class PlantUMLFormatter2 implements IFormatter {
             buffer.append("create ").append(classA).append('\n');
         }
         buffer.append("Actor").append(" -> ").append(classA).append(methodColors.get(0))
-                .append(" : ")
-                // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
-                .append(String.format("[[%s#%s %s]]", classDescription.getAbsPath(), methodDescription.getMethodName(), method))
-                .append('\n');
+                .append(" : ");
+        if (sequenceParamsState.plantumlLink) {
+            // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
+            buffer.append(String.format("[[%s#%s %s]]", classDescription.getAbsPath(), methodDescription.getMethodName(), method));
+        } else {
+            buffer.append(method);
+        }
+        buffer.append('\n');
         generate(buffer, callStack);
         buffer.append(classA).append(" --> Actor : return\n");
         buffer.append("@enduml");
@@ -127,16 +136,24 @@ public class PlantUMLFormatter2 implements IFormatter {
                 methodColor = methodColors.get(mappedValue);
             }
             buffer.append(classA).append(" -> ").append(classB).append(methodColor)
-                    .append(" : ")
-                    // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
-                    .append(String.format("[[%s#%s %s]]", classDescriptionB.getAbsPath(), methodDescriptionB.getMethodName(), method))
-                    .append('\n');
+                    .append(" : ");
+            if (sequenceParamsState.plantumlLink) {
+                // 形如 [[D:/xx/LoginController.java#loginSimple loginSimple(String)]]
+                buffer.append(String.format("[[%s#%s %s]]", classDescriptionB.getAbsPath(), methodDescriptionB.getMethodName(), method));
+            } else {
+                buffer.append(method);
+            }
+            buffer.append('\n');
             generate(buffer, callStack);
             buffer.append(classB).append(" --> ").append(classA)
-                    .append(" : ")
-                    // 形如 void to [[D:/xx/LoginController.java#loginSimple return loginSimple]]
-                    .append(String.format("%s to [[%s#%s %s]]", methodDescriptionB.getReturnTypeShort(), classDescriptionA.getAbsPath(), methodDescriptionA.getMethodName(), methodA))
-                    .append('\n');
+                    .append(" : ");
+            if (sequenceParamsState.plantumlLink) {
+                // 形如 void to [[D:/xx/LoginController.java#loginSimple return loginSimple]]
+                buffer.append(String.format("%s to [[%s#%s %s]]", methodDescriptionB.getReturnTypeShort(), classDescriptionA.getAbsPath(), methodDescriptionA.getMethodName(), methodA));
+            } else {
+                buffer.append(String.format("%s to %s", methodDescriptionB.getReturnTypeShort(), methodA));
+            }
+            buffer.append('\n');
         }
 
     }
@@ -153,9 +170,9 @@ public class PlantUMLFormatter2 implements IFormatter {
     }
 
     /**
-     * @see vanstudio.sequence.diagram.DisplayObject#determineBackgroundPaintForObject
      * @param objectInfo
      * @return
+     * @see vanstudio.sequence.diagram.DisplayObject#determineBackgroundPaintForObject
      */
     private String determineBackgroundPaintForObject(ObjectInfo objectInfo) {
         return objectInfo.hasAttribute(Info.EXTERNAL_ATTRIBUTE)

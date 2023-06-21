@@ -19,6 +19,8 @@ public class SequenceParamsState implements PersistentStateComponent<SequencePar
     public boolean noGetterSetters = true;
     public boolean noPrivateMethods = false;
     public boolean noConstructors = false;
+    // 生成plantuml时是否生成带有跳转的link
+    public boolean plantumlLink = false;
     @Deprecated(since = "2.2.0", forRemoval = true)
     public boolean smartInterface = false;
 
